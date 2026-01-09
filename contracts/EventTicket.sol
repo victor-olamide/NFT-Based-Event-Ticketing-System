@@ -57,9 +57,9 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
      * @param _ticketPrice Price per ticket in wei
      */
     function createEvent(
-        string memory _name,
+        string calldata _name,
         uint256 _date,
-        string memory _venue,
+        string calldata _venue,
         uint256 _totalTickets,
         uint256 _ticketPrice
     ) external returns (uint256) {
