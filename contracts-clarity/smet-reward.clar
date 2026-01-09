@@ -32,6 +32,8 @@
   )
 )
 
+;; Claim reward tokens for the calling user
+;; Users can only claim once and amount must not exceed maximum
 (define-public (claim-reward (amount uint))
   (let ((user tx-sender))
     (asserts! (<= amount MAX_REWARD_AMOUNT) ERR_INVALID_AMOUNT)
