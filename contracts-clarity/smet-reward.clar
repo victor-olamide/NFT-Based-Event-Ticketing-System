@@ -21,6 +21,9 @@
 (define-map claimed-rewards principal bool)
 
 ;; Public functions
+
+;; Initialize the reward pool with a specified amount
+;; Only the contract owner can call this function
 (define-public (initialize-reward-pool (amount uint))
   (begin
     (asserts! (is-eq tx-sender CONTRACT_OWNER) ERR_UNAUTHORIZED)
