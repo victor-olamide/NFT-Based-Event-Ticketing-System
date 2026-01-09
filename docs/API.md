@@ -903,3 +903,596 @@ describe('EventTicket', function () {
     });
 });
 ```
+
+## Integration Guide
+
+### Frontend Integration
+
+#### React Application Setup
+
+1. **Install Dependencies**
+
+```bash
+npm install ethers wagmi @rainbow-me/rainbowkit
+```
+
+2. **Configure Wagmi Provider**
+
+```javascript
+// wagmi.config.js
+import { configureChains, createConfig } from 'wagmi';
+import { base, baseGoerli } from 'wagmi/chains';
+import { publicProvider } from 'wagmi/providers/public';
+import { getDefaultWallets } from '@rainbow-me/rainbowkit';
+
+const { chains, publicClient, webSocketPublicClient } = configureChains(
+  [base, baseGoerli],
+  [publicProvider()]
+);
+
+const { connectors } = getDefaultWallets({
+  appName: 'NFT Event Ticketing',
+  projectId: 'YOUR_PROJECT_ID',
+  chains,
+});
+
+export const wagmiConfig = createConfig({
+  autoConnect: true,
+  connectors,
+  publicClient,
+  webSocketPublicClient,
+});
+
+export { chains };
+```
+
+3. **App Component Setup**
+
+```javascript
+// App.js
+import { WagmiConfig } from 'wagmi';
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { wagmiConfig, chains } from './wagmi.config';
+import EventTicketApp from './components/EventTicketApp';
+
+function App() {
+  return (
+    <WagmiConfig config={wagmiConfig}>
+      <RainbowKitProvider chains={chains}>
+        <EventTicketApp />
+      </RainbowKitProvider>
+    </WagmiConfig>
+  );
+}
+
+export default App;
+```
+
+#### Backend Integration
+
+1. **Node.js Express Server**
+
+```javascript
+// server.js
+const express = require('express');
+const { ethers } = require('ethers');
+const EventTicketABI = require('./abis/EventTicket.json');
+
+const app = express();
+app.use(express.json());
+
+const provider = new ethers.providers.JsonRpcProvider(process.env.BASE_RPC_URL);
+const contract = new ethers.Contract(
+  process.env.EVENT_TICKET_ADDRESS,
+  EventTicketABI,
+  provider
+);
+
+// Get event details
+app.get('/api/events/:eventId', async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const event = await contract.events(eventId);
+    res.json(event);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get ticket details
+app.get('/api/tickets/:ticketId', async (req, res) => {
+  try {
+    const { ticketId } = req.params;
+    const ticket = await contract.tickets(ticketId);
+    res.json(ticket);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.listen(3001, () => {
+  console.log('Server running on port 3001');
+});
+```
+
+### Mobile Integration
+
+#### React Native Setup
+
+```javascript
+// Mobile wallet integration
+import { WalletConnect } from '@walletconnect/client';
+import { ethers } from 'ethers';
+
+class MobileTicketService {
+  constructor() {
+    this.connector = new WalletConnect({
+      bridge: 'https://bridge.walletconnect.org',
+      qrcodeModal: QRCodeModal,
+    });
+  }
+
+  async connectWallet() {
+    if (!this.connector.connected) {
+      await this.connector.createSession();
+    }
+    return this.connector.accounts[0];
+  }
+
+  async purchaseTicket(eventId, seatNumber) {
+    const provider = new ethers.providers.Web3Provider(this.connector);
+    const signer = provider.getSigner();
+    
+    const contract = new ethers.Contract(
+      EVENT_TICKET_ADDRESS,
+      EventTicketABI,
+      signer
+    );
+
+    const event = await contract.events(eventId);
+    const qrCode = this.generateQRCode(eventId, seatNumber);
+    
+    const tx = await contract.mintTicket(eventId, seatNumber, qrCode, {
+      value: event.ticketPrice
+    });
+
+    return await tx.wait();
+  }
+
+  generateQRCode(eventId, seatNumber) {
+    return `EVENT_${eventId}_SEAT_${seatNumber}_${Date.now()}`;
+  }
+}
+```
+
+### QR Code Integration
+
+#### QR Code Generation
+
+```javascript
+// QR Code service
+import QRCode from 'qrcode';
+import crypto from 'crypto';
+
+class QRCodeService {
+  static generateTicketQR(ticketId, eventId, seatNumber) {
+    const timestamp = Date.now();
+    const data = {
+      ticketId,
+      eventId,
+      seatNumber,
+      timestamp,
+      hash: crypto
+        .createHash('sha256')
+        .update(`${ticketId}-${eventId}-${seatNumber}-${timestamp}`)
+        .digest('hex')
+    };
+
+    return JSON.stringify(data);
+  }
+
+  static async createQRCodeImage(data) {
+    try {
+      const qrCodeDataURL = await QRCode.toDataURL(data, {
+        errorCorrectionLevel: 'M',
+        type: 'image/png',
+        quality: 0.92,
+        margin: 1,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        }
+      });
+      return qrCodeDataURL;
+    } catch (error) {
+      throw new Error(`QR Code generation failed: ${error.message}`);
+    }
+  }
+
+  static verifyQRCode(qrData, ticketId) {
+    try {
+      const data = JSON.parse(qrData);
+      return data.ticketId === ticketId;
+    } catch (error) {
+      return false;
+    }
+  }
+}
+```
+
+#### QR Code Scanner Integration
+
+```javascript
+// QR Scanner component
+import { Html5QrcodeScanner } from 'html5-qrcode';
+import { useEffect, useRef } from 'react';
+
+function QRScanner({ onScanSuccess, onScanError }) {
+  const scannerRef = useRef(null);
+
+  useEffect(() => {
+    const scanner = new Html5QrcodeScanner(
+      'qr-reader',
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      false
+    );
+
+    scanner.render(
+      (decodedText) => {
+        try {
+          const ticketData = JSON.parse(decodedText);
+          onScanSuccess(ticketData);
+        } catch (error) {
+          onScanError('Invalid QR code format');
+        }
+      },
+      (error) => {
+        onScanError(error);
+      }
+    );
+
+    scannerRef.current = scanner;
+
+    return () => {
+      scanner.clear();
+    };
+  }, [onScanSuccess, onScanError]);
+
+  return <div id="qr-reader" style={{ width: '100%' }}></div>;
+}
+```
+
+### Event Listener Integration
+
+#### Real-time Event Monitoring
+
+```javascript
+// Event monitoring service
+class EventMonitorService {
+  constructor(contractAddress, abi, provider) {
+    this.contract = new ethers.Contract(contractAddress, abi, provider);
+    this.listeners = new Map();
+  }
+
+  // Listen for new events
+  onEventCreated(callback) {
+    const filter = this.contract.filters.EventCreated();
+    this.contract.on(filter, (eventId, name, organizer, event) => {
+      callback({
+        eventId: eventId.toString(),
+        name,
+        organizer,
+        transactionHash: event.transactionHash,
+        blockNumber: event.blockNumber
+      });
+    });
+  }
+
+  // Listen for ticket purchases
+  onTicketMinted(callback) {
+    const filter = this.contract.filters.TicketMinted();
+    this.contract.on(filter, (ticketId, eventId, buyer, event) => {
+      callback({
+        ticketId: ticketId.toString(),
+        eventId: eventId.toString(),
+        buyer,
+        transactionHash: event.transactionHash,
+        blockNumber: event.blockNumber
+      });
+    });
+  }
+
+  // Listen for ticket verifications
+  onTicketVerified(callback) {
+    const filter = this.contract.filters.TicketVerified();
+    this.contract.on(filter, (ticketId, verifier, event) => {
+      callback({
+        ticketId: ticketId.toString(),
+        verifier,
+        transactionHash: event.transactionHash,
+        blockNumber: event.blockNumber,
+        timestamp: Date.now()
+      });
+    });
+  }
+
+  // Remove all listeners
+  removeAllListeners() {
+    this.contract.removeAllListeners();
+  }
+}
+
+// Usage example
+const monitor = new EventMonitorService(
+  EVENT_TICKET_ADDRESS,
+  EventTicketABI,
+  provider
+);
+
+monitor.onTicketMinted((data) => {
+  console.log('New ticket minted:', data);
+  // Update UI, send notifications, etc.
+});
+```
+
+### IPFS Integration
+
+#### Metadata Storage
+
+```javascript
+// IPFS service for storing ticket metadata
+import { create } from 'ipfs-http-client';
+
+class IPFSService {
+  constructor() {
+    this.client = create({
+      host: 'ipfs.infura.io',
+      port: 5001,
+      protocol: 'https',
+      headers: {
+        authorization: `Basic ${Buffer.from(
+          `${process.env.INFURA_PROJECT_ID}:${process.env.INFURA_PROJECT_SECRET}`
+        ).toString('base64')}`
+      }
+    });
+  }
+
+  async uploadTicketMetadata(ticketData) {
+    const metadata = {
+      name: `${ticketData.eventName} - Seat ${ticketData.seatNumber}`,
+      description: `Ticket for ${ticketData.eventName} at ${ticketData.venue}`,
+      image: ticketData.imageUrl,
+      attributes: [
+        {
+          trait_type: 'Event',
+          value: ticketData.eventName
+        },
+        {
+          trait_type: 'Venue',
+          value: ticketData.venue
+        },
+        {
+          trait_type: 'Date',
+          value: new Date(ticketData.date * 1000).toISOString()
+        },
+        {
+          trait_type: 'Seat Number',
+          value: ticketData.seatNumber.toString()
+        }
+      ]
+    };
+
+    const result = await this.client.add(JSON.stringify(metadata));
+    return `https://ipfs.io/ipfs/${result.path}`;
+  }
+
+  async getMetadata(ipfsHash) {
+    const stream = this.client.cat(ipfsHash);
+    let data = '';
+    
+    for await (const chunk of stream) {
+      data += chunk.toString();
+    }
+    
+    return JSON.parse(data);
+  }
+}
+```
+
+### Security Best Practices
+
+#### Input Validation
+
+```javascript
+// Validation utilities
+class ValidationUtils {
+  static validateEventData(eventData) {
+    const errors = [];
+
+    if (!eventData.name || eventData.name.trim().length === 0) {
+      errors.push('Event name is required');
+    }
+
+    if (!eventData.date || eventData.date <= Date.now() / 1000) {
+      errors.push('Event date must be in the future');
+    }
+
+    if (!eventData.totalTickets || eventData.totalTickets <= 0) {
+      errors.push('Total tickets must be greater than 0');
+    }
+
+    if (!eventData.ticketPrice || eventData.ticketPrice <= 0) {
+      errors.push('Ticket price must be greater than 0');
+    }
+
+    return errors;
+  }
+
+  static validateAddress(address) {
+    return ethers.utils.isAddress(address);
+  }
+
+  static sanitizeString(input) {
+    return input.replace(/[<>]/g, '');
+  }
+}
+```
+
+#### Rate Limiting
+
+```javascript
+// Rate limiting middleware
+const rateLimit = require('express-rate-limit');
+
+const ticketPurchaseLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 ticket purchases per windowMs
+  message: 'Too many ticket purchase attempts, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use('/api/purchase', ticketPurchaseLimit);
+```
+
+### Deployment Guide
+
+#### Hardhat Deployment Script
+
+```javascript
+// scripts/deploy.js
+const { ethers } = require('hardhat');
+
+async function main() {
+  console.log('Deploying contracts to Base network...');
+
+  // Deploy EventTicket contract
+  const EventTicket = await ethers.getContractFactory('EventTicket');
+  const eventTicket = await EventTicket.deploy();
+  await eventTicket.deployed();
+  console.log('EventTicket deployed to:', eventTicket.address);
+
+  // Deploy TicketMarketplace contract
+  const TicketMarketplace = await ethers.getContractFactory('TicketMarketplace');
+  const marketplace = await TicketMarketplace.deploy(
+    eventTicket.address,
+    process.env.FEE_RECIPIENT_ADDRESS
+  );
+  await marketplace.deployed();
+  console.log('TicketMarketplace deployed to:', marketplace.address);
+
+  // Verify contracts on Basescan
+  if (network.name !== 'hardhat') {
+    console.log('Waiting for block confirmations...');
+    await eventTicket.deployTransaction.wait(6);
+    await marketplace.deployTransaction.wait(6);
+
+    await hre.run('verify:verify', {
+      address: eventTicket.address,
+      constructorArguments: [],
+    });
+
+    await hre.run('verify:verify', {
+      address: marketplace.address,
+      constructorArguments: [eventTicket.address, process.env.FEE_RECIPIENT_ADDRESS],
+    });
+  }
+
+  // Save deployment info
+  const deploymentInfo = {
+    network: network.name,
+    eventTicket: eventTicket.address,
+    marketplace: marketplace.address,
+    deployer: (await ethers.getSigners())[0].address,
+    timestamp: new Date().toISOString()
+  };
+
+  console.log('Deployment completed:', deploymentInfo);
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+```
+
+#### Environment Configuration
+
+```bash
+# .env file
+PRIVATE_KEY=your_private_key_here
+BASE_RPC_URL=https://mainnet.base.org
+BASE_SEPOLIA_RPC_URL=https://sepolia.base.org
+BASESCAN_API_KEY=your_basescan_api_key
+FEE_RECIPIENT_ADDRESS=0x...
+INFURA_PROJECT_ID=your_infura_project_id
+INFURA_PROJECT_SECRET=your_infura_project_secret
+```
+
+### Troubleshooting
+
+#### Common Issues and Solutions
+
+1. **Transaction Reverted: "Event not active"**
+   - Check if the event exists and is still active
+   - Verify the event date hasn't passed
+
+2. **Transaction Reverted: "Insufficient payment"**
+   - Ensure the sent value matches or exceeds the ticket price
+   - Account for gas fees in the transaction
+
+3. **Transaction Reverted: "Sold out"**
+   - Check if tickets are still available
+   - Implement proper UI feedback for sold-out events
+
+4. **QR Code Verification Failed**
+   - Ensure QR code format matches expected structure
+   - Verify ticket hasn't been used already
+
+5. **Marketplace Approval Issues**
+   - Ensure proper token approval before listing
+   - Check if the marketplace contract address is correct
+
+#### Debug Utilities
+
+```javascript
+// Debug helper functions
+class DebugUtils {
+  static async getTransactionDetails(txHash, provider) {
+    const tx = await provider.getTransaction(txHash);
+    const receipt = await provider.getTransactionReceipt(txHash);
+    
+    return {
+      transaction: tx,
+      receipt: receipt,
+      gasUsed: receipt.gasUsed.toString(),
+      effectiveGasPrice: receipt.effectiveGasPrice?.toString(),
+      status: receipt.status === 1 ? 'Success' : 'Failed'
+    };
+  }
+
+  static async estimateGas(contract, method, params) {
+    try {
+      const gasEstimate = await contract.estimateGas[method](...params);
+      return gasEstimate.toString();
+    } catch (error) {
+      console.error('Gas estimation failed:', error);
+      return null;
+    }
+  }
+
+  static formatError(error) {
+    if (error.reason) {
+      return error.reason;
+    } else if (error.message) {
+      return error.message;
+    } else {
+      return 'Unknown error occurred';
+    }
+  }
+}
+```
+
+This comprehensive integration guide provides developers with all the necessary information to integrate the NFT Event Ticketing System into their applications, covering frontend, backend, mobile, and security considerations.
