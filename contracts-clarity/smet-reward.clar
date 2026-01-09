@@ -20,7 +20,7 @@
 ;; Public functions
 (define-public (initialize-reward-pool (amount uint))
   (begin
-    (asserts! (is-eq tx-sender (var-get CONTRACT_OWNER)) ERR_UNAUTHORIZED)
+    (asserts! (is-eq tx-sender CONTRACT_OWNER) ERR_UNAUTHORIZED)
     (var-set reward-pool amount)
     (ok true)
   )
