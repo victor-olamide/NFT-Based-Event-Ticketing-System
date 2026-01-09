@@ -113,6 +113,29 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     }
     
     /**
+     * @dev Set token URI for metadata
+     * @param tokenId Token ID
+     * @param _tokenURI Metadata URI
+     */
+    function setTokenURI(uint256 tokenId, string memory _tokenURI) external onlyOwner {
+        _setTokenURI(tokenId, _tokenURI);
+    }
+    
+    /**
+     * @dev Get total supply of tokens
+     */
+    function totalSupply() external view returns (uint256) {
+        return _tokenIds.current();
+    }
+    
+    /**
+     * @dev Get total number of events
+     */
+    function totalEvents() external view returns (uint256) {
+        return _eventIds.current();
+    }
+    
+    /**
      * @dev Mint a new ticket NFT
      * @param to Address to mint the ticket to
      * @return tokenId The ID of the minted token
