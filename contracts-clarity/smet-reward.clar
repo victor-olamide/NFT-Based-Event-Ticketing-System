@@ -2,7 +2,7 @@
 ;; This contract manages reward distribution for the SMET token system
 
 ;; Constants with syntax errors (missing opening parenthesis)
-define-constant CONTRACT_OWNER tx-sender)
+(define-constant CONTRACT_OWNER tx-sender)
 define-constant ERR_UNAUTHORIZED (err u100))
 define-constant ERR_INSUFFICIENT_BALANCE (err u101))
 define-constant ERR_INVALID_AMOUNT (err u102))
