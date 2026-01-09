@@ -5,12 +5,14 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
  * @title EventTicket
  * @dev ERC721 NFT contract for event tickets with Base network optimization
+ * Optimized for low gas costs and fast transactions on Base L2
  */
-contract EventTicket is ERC721, ERC721URIStorage, Ownable {
+contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     using Counters for Counters.Counter;
     
     Counters.Counter private _tokenIds;
@@ -86,7 +88,7 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable {
     function mintTicket(
         uint256 _eventId,
         uint256 _seatNumber
-    ) external payable returns (uint256) {
+    ) external payable nonReentrant returns (uint256) {
         Event storage eventData = events[_eventId];
         require(eventData.isActive, "Event not active");
         require(eventData.ticketsSold < eventData.totalTickets, "Sold out");
