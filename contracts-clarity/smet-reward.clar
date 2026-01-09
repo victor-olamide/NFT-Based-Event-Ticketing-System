@@ -37,6 +37,7 @@
 ;; Users can only claim once and amount must not exceed maximum
 (define-public (claim-reward (amount uint))
   (let ((user tx-sender))
+    (asserts! (> amount u0) ERR_INVALID_AMOUNT)
     (asserts! (<= amount MAX_REWARD_AMOUNT) ERR_INVALID_AMOUNT)
     (asserts! (not (default-to false (map-get? claimed-rewards user))) ERR_ALREADY_CLAIMED)
     (asserts! (<= amount (var-get reward-pool)) ERR_INSUFFICIENT_BALANCE)
