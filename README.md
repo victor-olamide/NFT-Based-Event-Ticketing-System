@@ -1,6 +1,6 @@
-# NFT Event Ticketing System
+# NFT Event Ticketing System - Base Network
 
-A decentralized event ticketing platform using NFTs to prevent fraud and enable transparent secondary market trading.
+A decentralized event ticketing platform built on **Base** using NFTs to prevent fraud and enable transparent secondary market trading. This project leverages Base's low-cost, fast transactions to make event ticketing accessible and affordable.
 
 ## Features
 
@@ -14,7 +14,7 @@ A decentralized event ticketing platform using NFTs to prevent fraud and enable 
 
 - **Smart Contracts**: Solidity, OpenZeppelin
 - **Frontend**: Next.js, React, TypeScript
-- **Blockchain**: Ethereum/Polygon
+- **Blockchain**: Base (Ethereum L2)
 - **Web3**: Ethers.js
 - **Storage**: IPFS for metadata
 - **Styling**: Tailwind CSS
@@ -23,8 +23,8 @@ A decentralized event ticketing platform using NFTs to prevent fraud and enable 
 
 ```bash
 # Clone repository
-git clone <repository-url>
-cd nft-ticketing-system
+git clone https://github.com/victor-olamide/NFT-Based-Event-Ticketing-System.git
+cd NFT-Based-Event-Ticketing-System
 
 # Install dependencies
 npm install
@@ -32,8 +32,11 @@ npm install
 # Start local blockchain
 npx hardhat node
 
-# Deploy contracts
-npx hardhat run scripts/deploy.js --network localhost
+# Deploy contracts to Base testnet
+npx hardhat run scripts/deploy.js --network base-sepolia
+
+# Deploy to Base mainnet
+npx hardhat run scripts/deploy.js --network base
 
 # Start frontend
 npm run dev
@@ -76,8 +79,8 @@ npm run dev
 
 ```env
 PRIVATE_KEY=your_private_key
-INFURA_PROJECT_ID=your_infura_id
-ETHERSCAN_API_KEY=your_etherscan_key
+BASE_RPC_URL=https://mainnet.base.org
+BASESCAN_API_KEY=your_basescan_key
 ```
 
 ## License
