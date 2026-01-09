@@ -177,6 +177,15 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         return tickets[_ticketId];
     }
     
+    /**
+     * @dev Withdraw contract balance (only owner)
+     */
+    function withdraw() external onlyOwner {
+        uint256 balance = address(this).balance;
+        require(balance > 0, "No funds to withdraw");
+        payable(owner()).transfer(balance);
+    }
+    
     // Required overrides for ERC721URIStorage
     function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
         super._burn(tokenId);
