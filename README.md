@@ -24,12 +24,33 @@ A decentralized event ticketing platform built on **Base** using NFTs to prevent
 
 ## 📚 Documentation
 
+### For Users
+- **[Getting Started Guide](./docs/user-guides/getting-started.md)** - Complete beginner's guide to NFT ticketing
+- **[Quick Start Tutorial](./docs/tutorials/quick-start.md)** - Get up and running in 15 minutes
+- **[User Onboarding](./docs/user-guides/onboarding.md)** - Role-specific onboarding paths
+- **[FAQ](./docs/user-guides/faq.md)** - Frequently asked questions and answers
+- **[Troubleshooting](./docs/user-guides/troubleshooting.md)** - Technical issue resolution
+
+### For Specific Roles
+- **[Event Organizer Tutorial](./docs/tutorials/event-organizer-tutorial.md)** - Complete event creation guide
+- **[Ticket Buyer Tutorial](./docs/tutorials/ticket-buyer-tutorial.md)** - Purchasing and managing tickets
+- **[Marketplace Tutorial](./docs/tutorials/marketplace-tutorial.md)** - Secondary market trading
+- **[Venue Staff Tutorial](./docs/tutorials/venue-staff-tutorial.md)** - Ticket verification guide
+
+### For Developers
 - **[Complete API Documentation](./docs/API.md)** - Comprehensive smart contract API reference
 - **[API Quick Reference](./docs/API-Reference.md)** - Error codes, gas estimates, and optimization tips
 - **[Frontend Integration Guide](./docs/Frontend-Integration.md)** - React components and Web3 setup
 - **[Documentation Index](./docs/README.md)** - Complete documentation overview
 
-## Quick Start
+## 🚀 Quick Start
+
+### New to NFT Tickets?
+1. **[Read Getting Started Guide](./docs/user-guides/getting-started.md)** - Understand the basics
+2. **[Follow Quick Start Tutorial](./docs/tutorials/quick-start.md)** - Get up and running in 15 minutes
+3. **[Set Up Your Wallet](./docs/user-guides/wallet-setup.md)** - Secure wallet configuration
+
+### For Developers
 
 ```bash
 # Clone repository
@@ -87,6 +108,20 @@ npm run dev
 │   ├── TicketMarketplace.sol  # Secondary marketplace contract
 │   └── interfaces/            # Contract interfaces
 ├── docs/                      # Comprehensive documentation
+│   ├── user-guides/          # User guides and tutorials
+│   │   ├── getting-started.md # Complete beginner's guide
+│   │   ├── wallet-setup.md   # Wallet configuration guide
+│   │   ├── onboarding.md     # Role-specific onboarding
+│   │   ├── best-practices.md # Optimization strategies
+│   │   ├── faq.md           # Frequently asked questions
+│   │   └── troubleshooting.md # Technical issue resolution
+│   ├── tutorials/            # Step-by-step tutorials
+│   │   ├── quick-start.md    # 15-minute setup guide
+│   │   ├── event-organizer-tutorial.md # Event creation
+│   │   ├── ticket-buyer-tutorial.md # Ticket purchasing
+│   │   ├── marketplace-tutorial.md # Secondary trading
+│   │   ├── venue-staff-tutorial.md # Ticket verification
+│   │   └── video-scripts.md  # Video tutorial scripts
 │   ├── API.md                # Complete API reference
 │   ├── API-Reference.md      # Quick reference guide
 │   ├── Frontend-Integration.md # Frontend integration guide
@@ -179,7 +214,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔗 Links
 
-- **Documentation**: [Complete API Docs](./docs/)
+- **Documentation**: [Complete Docs with User Guides](./docs/)
+- **Getting Started**: [Beginner's Guide](./docs/user-guides/getting-started.md)
+- **Quick Tutorial**: [15-Minute Setup](./docs/tutorials/quick-start.md)
 - **Base Network**: [https://base.org](https://base.org)
 - **OpenZeppelin**: [https://openzeppelin.com](https://openzeppelin.com)
 - **Hardhat**: [https://hardhat.org](https://hardhat.org)
