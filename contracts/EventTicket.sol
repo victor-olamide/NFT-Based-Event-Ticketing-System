@@ -152,6 +152,31 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         return true;
     }
     
+    /**
+     * @dev Deactivate an event (only organizer)
+     * @param _eventId Event ID to deactivate
+     */
+    function deactivateEvent(uint256 _eventId) external {
+        require(events[_eventId].organizer == msg.sender, "Not organizer");
+        events[_eventId].isActive = false;
+    }
+    
+    /**
+     * @dev Get event details
+     * @param _eventId Event ID
+     */
+    function getEvent(uint256 _eventId) external view returns (Event memory) {
+        return events[_eventId];
+    }
+    
+    /**
+     * @dev Get ticket details
+     * @param _ticketId Ticket ID
+     */
+    function getTicket(uint256 _ticketId) external view returns (Ticket memory) {
+        return tickets[_ticketId];
+    }
+    
     // Required overrides for ERC721URIStorage
     function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
         super._burn(tokenId);
