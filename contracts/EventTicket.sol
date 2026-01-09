@@ -79,6 +79,38 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable {
     }
     
     /**
+     * @dev Mint a ticket for an event
+     * @param _eventId Event ID
+     * @param _seatNumber Seat number
+     */
+    function mintTicket(
+        uint256 _eventId,
+        uint256 _seatNumber
+    ) external payable returns (uint256) {
+        Event storage eventData = events[_eventId];
+        require(eventData.isActive, "Event not active");
+        require(eventData.ticketsSold < eventData.totalTickets, "Sold out");
+        require(msg.value >= eventData.ticketPrice, "Insufficient payment");
+        
+        _tokenIds.increment();
+        uint256 tokenId = _tokenIds.current();
+        
+        tickets[tokenId] = Ticket({
+            ticketId: tokenId,
+            eventId: _eventId,
+            originalBuyer: msg.sender,
+            isUsed: false,
+            seatNumber: _seatNumber
+        });
+        
+        eventData.ticketsSold++;
+        _mint(msg.sender, tokenId);
+        
+        emit TicketMinted(tokenId, _eventId, msg.sender);
+        return tokenId;
+    }
+    
+    /**
      * @dev Mint a new ticket NFT
      * @param to Address to mint the ticket to
      * @return tokenId The ID of the minted token
