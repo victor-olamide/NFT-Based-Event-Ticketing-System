@@ -135,22 +135,16 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         return _eventIds.current();
     }
     
-    /**
-     * @dev Mint a new ticket NFT
-     * @param to Address to mint the ticket to
-     * @return tokenId The ID of the minted token
-     */
-    function mint(address to) external onlyOwner returns (uint256) {
-        _tokenIds.increment();
-        uint256 tokenId = _tokenIds.current();
-        _mint(to, tokenId);
-        return tokenId;
+    // Required overrides for ERC721URIStorage
+    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
+        super._burn(tokenId);
     }
     
-    /**
-     * @dev Get the total number of tokens minted
-     */
-    function totalSupply() external view returns (uint256) {
-        return _tokenIds.current();
+    function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
+        return super.tokenURI(tokenId);
+    }
+    
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721URIStorage) returns (bool) {
+        return super.supportsInterface(interfaceId);
     }
 }
