@@ -1,6 +1,6 @@
 # Documentation Index
 
-Welcome to the NFT Event Ticketing System documentation. This comprehensive guide covers all aspects of the system, from smart contract APIs to frontend integration.
+Welcome to the NFT Event Ticketing System documentation. This comprehensive guide covers all aspects of the system, from smart contract APIs to user guides and tutorials.
 
 ## 📚 Documentation Structure
 
@@ -9,7 +9,48 @@ Welcome to the NFT Event Ticketing System documentation. This comprehensive guid
 - **[API Reference](./API-Reference.md)** - Quick reference, error codes, and optimization tips
 - **[Frontend Integration](./Frontend-Integration.md)** - React/Next.js integration guide
 
+### User Guides
+- **[Getting Started](./user-guides/getting-started.md)** - Complete beginner's guide to NFT ticketing
+- **[Wallet Setup](./user-guides/wallet-setup.md)** - Detailed wallet configuration and security
+- **[User Onboarding](./user-guides/onboarding.md)** - Role-specific onboarding paths
+- **[Best Practices](./user-guides/best-practices.md)** - Optimization strategies for all users
+- **[FAQ](./user-guides/faq.md)** - Frequently asked questions and answers
+- **[Troubleshooting](./user-guides/troubleshooting.md)** - Technical issue resolution
+
+### Tutorials
+- **[Quick Start](./tutorials/quick-start.md)** - Get up and running in 15 minutes
+- **[Event Organizer Tutorial](./tutorials/event-organizer-tutorial.md)** - Complete event creation guide
+- **[Ticket Buyer Tutorial](./tutorials/ticket-buyer-tutorial.md)** - Purchasing and managing tickets
+- **[Marketplace Tutorial](./tutorials/marketplace-tutorial.md)** - Buying and selling on secondary market
+- **[Venue Staff Tutorial](./tutorials/venue-staff-tutorial.md)** - Ticket verification and troubleshooting
+- **[Video Scripts](./tutorials/video-scripts.md)** - Scripts for creating video tutorials
+
 ### Quick Links
+
+#### For New Users
+- [Getting Started Guide](./user-guides/getting-started.md)
+- [Quick Start Tutorial](./tutorials/quick-start.md)
+- [Wallet Setup Guide](./user-guides/wallet-setup.md)
+- [User Onboarding](./user-guides/onboarding.md)
+
+#### For Event Organizers
+- [Event Organizer Tutorial](./tutorials/event-organizer-tutorial.md)
+- [Creating Events](./API.md#createevent)
+- [Managing Tickets](./API.md#mintticket)
+- [Setting Up Royalties](./API.md#setroyaltyinfo)
+- [Best Practices for Organizers](./user-guides/best-practices.md#for-event-organizers)
+
+#### For Ticket Buyers
+- [Ticket Buyer Tutorial](./tutorials/ticket-buyer-tutorial.md)
+- [Purchasing Tickets](./API.md#mintticket)
+- [Transferring Tickets](./API.md#ticket-transfers)
+- [Marketplace Trading](./tutorials/marketplace-tutorial.md)
+
+#### For Venue Staff
+- [Venue Staff Tutorial](./tutorials/venue-staff-tutorial.md)
+- [Ticket Verification](./API.md#verifyticket)
+- [QR Code Integration](./API.md#qr-code-integration)
+- [Troubleshooting Guide](./user-guides/troubleshooting.md)
 
 #### For Developers
 - [Smart Contract Functions](./API.md#eventticket-contract)
@@ -17,23 +58,17 @@ Welcome to the NFT Event Ticketing System documentation. This comprehensive guid
 - [Integration Guide](./API.md#integration-guide)
 - [Frontend Components](./Frontend-Integration.md#component-examples)
 
-#### For Event Organizers
-- [Creating Events](./API.md#createevent)
-- [Managing Tickets](./API.md#mintticket)
-- [Setting Up Royalties](./API.md#setroyaltyinfo)
-
-#### For Ticket Buyers
-- [Purchasing Tickets](./API.md#mintticket)
-- [Transferring Tickets](./API.md#ticket-transfers)
-- [Marketplace Trading](./API.md#ticketmarketplace-contract)
-
-#### For Venue Operators
-- [Ticket Verification](./API.md#verifyticket)
-- [QR Code Integration](./API.md#qr-code-integration)
-
 ## 🚀 Getting Started
 
-### 1. Smart Contract Deployment
+### New to NFT Tickets?
+1. **[Read Getting Started Guide](./user-guides/getting-started.md)** - Understand the basics
+2. **[Follow Quick Start Tutorial](./tutorials/quick-start.md)** - Get up and running in 15 minutes
+3. **[Set Up Your Wallet](./user-guides/wallet-setup.md)** - Secure wallet configuration
+4. **[Complete Onboarding](./user-guides/onboarding.md)** - Role-specific guidance
+
+### For Developers
+
+#### 1. Smart Contract Deployment
 ```bash
 # Install dependencies
 npm install
@@ -79,17 +114,32 @@ const ticketId = await eventTicketContract.mintTicket(
 
 ## 📖 Documentation Sections
 
-### Smart Contract API
-Comprehensive documentation of all smart contract functions, events, and data structures.
+### User Documentation
+Comprehensive guides for all user types, from complete beginners to advanced users.
 
-**Key Topics:**
+**User Guides:**
+- Complete setup and security guides
+- Best practices and optimization strategies
+- Troubleshooting and problem resolution
+- Frequently asked questions
+
+**Tutorials:**
+- Step-by-step instructions for specific tasks
+- Role-based learning paths
+- Quick start guides for immediate use
+- Video tutorial scripts
+
+### Technical Documentation
+Detailed technical information for developers and integrators.
+
+**Smart Contract API:**
 - Contract deployment and configuration
 - Event creation and management
 - Ticket minting and verification
 - Marketplace operations
 - Royalty management
 
-### Integration Examples
+**Integration Examples:**
 Real-world examples for different programming languages and frameworks.
 
 **Covered Languages:**
@@ -97,7 +147,7 @@ Real-world examples for different programming languages and frameworks.
 - Python (Web3.py)
 - Solidity (Contract integration)
 
-### Frontend Integration
+**Frontend Integration:**
 Complete guide for building user interfaces with React and Web3 libraries.
 
 **Key Components:**
@@ -221,16 +271,23 @@ npm start
 
 ## 📞 Support
 
+### Self-Help Resources
+- **[FAQ](./user-guides/faq.md)**: Common questions and answers
+- **[Troubleshooting Guide](./user-guides/troubleshooting.md)**: Technical issue resolution
+- **[Best Practices](./user-guides/best-practices.md)**: Optimization strategies
+- **[Video Tutorials](./tutorials/video-scripts.md)**: Visual learning resources
+
 ### Community Resources
 - **GitHub Issues**: Report bugs and request features
 - **Discord**: Join our community for discussions
 - **Documentation**: Comprehensive guides and examples
 
 ### Getting Help
-1. Check the documentation first
-2. Search existing GitHub issues
-3. Create a new issue with detailed information
-4. Join our Discord for community support
+1. Check the [FAQ](./user-guides/faq.md) first
+2. Try the [Troubleshooting Guide](./user-guides/troubleshooting.md)
+3. Search existing GitHub issues
+4. Create a new issue with detailed information
+5. Join our Discord for community support
 
 ## 📄 License
 
@@ -245,12 +302,18 @@ This project is licensed under the MIT License. See the [LICENSE](../LICENSE) fi
 - [Wagmi Documentation](https://wagmi.sh/)
 - [RainbowKit Documentation](https://www.rainbowkit.com/)
 
-### Tutorials
+### Learning Resources
 - [Building on Base](https://docs.base.org/building-with-base/)
 - [NFT Development Guide](https://docs.openzeppelin.com/contracts/4.x/erc721)
 - [Web3 Frontend Development](https://wagmi.sh/examples)
+- [Blockchain Security Best Practices](https://consensys.github.io/smart-contract-best-practices/)
+
+### Community Tutorials
+- [Video Tutorial Scripts](./tutorials/video-scripts.md)
+- [User Onboarding Paths](./user-guides/onboarding.md)
+- [Best Practices Guide](./user-guides/best-practices.md)
 
 ---
 
-*Last updated: [Current Date]*
-*Version: 1.0.0*
+*Last updated: December 2024*
+*Version: 2.0.0 - Now with comprehensive user guides and tutorials*
