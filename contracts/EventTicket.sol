@@ -45,6 +45,40 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable {
     constructor() ERC721("EventTicket", "ETKT") {}
     
     /**
+     * @dev Create a new event
+     * @param _name Event name
+     * @param _date Event date (timestamp)
+     * @param _venue Event venue
+     * @param _totalTickets Total number of tickets
+     * @param _ticketPrice Price per ticket in wei
+     */
+    function createEvent(
+        string memory _name,
+        uint256 _date,
+        string memory _venue,
+        uint256 _totalTickets,
+        uint256 _ticketPrice
+    ) external returns (uint256) {
+        _eventIds.increment();
+        uint256 eventId = _eventIds.current();
+        
+        events[eventId] = Event({
+            eventId: eventId,
+            name: _name,
+            date: _date,
+            venue: _venue,
+            totalTickets: _totalTickets,
+            ticketsSold: 0,
+            ticketPrice: _ticketPrice,
+            organizer: msg.sender,
+            isActive: true
+        });
+        
+        emit EventCreated(eventId, _name, msg.sender);
+        return eventId;
+    }
+    
+    /**
      * @dev Mint a new ticket NFT
      * @param to Address to mint the ticket to
      * @return tokenId The ID of the minted token
