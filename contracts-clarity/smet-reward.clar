@@ -1,5 +1,8 @@
 ;; SMET Reward Contract
 ;; This contract manages reward distribution for the SMET token system
+;; Version: 1.0.0
+;; Author: NFT Event Ticketing System
+;; License: MIT
 
 ;; Constants with syntax errors (missing opening parenthesis)
 (define-constant CONTRACT_OWNER tx-sender)
