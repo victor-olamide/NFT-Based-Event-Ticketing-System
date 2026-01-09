@@ -27,6 +27,7 @@
 (define-public (initialize-reward-pool (amount uint))
   (begin
     (asserts! (is-eq tx-sender CONTRACT_OWNER) ERR_UNAUTHORIZED)
+    (asserts! (> amount u0) ERR_INVALID_AMOUNT)
     (var-set reward-pool amount)
     (ok true)
   )
