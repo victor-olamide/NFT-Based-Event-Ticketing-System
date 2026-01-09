@@ -6,7 +6,7 @@
 (define-constant ERR_UNAUTHORIZED (err u100))
 (define-constant ERR_INSUFFICIENT_BALANCE (err u101))
 (define-constant ERR_INVALID_AMOUNT (err u102))
-define-constant ERR_ALREADY_CLAIMED (err u103))
+(define-constant ERR_ALREADY_CLAIMED (err u103))
 define-constant MAX_REWARD_AMOUNT u1000000)
 
 ;; Data variables
