@@ -50,6 +50,8 @@
 )
 
 ;; Read-only functions
+
+;; Get the current reward pool balance
 (define-read-only (get-reward-pool)
   (var-get reward-pool)
 )
