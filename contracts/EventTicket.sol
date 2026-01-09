@@ -40,9 +40,11 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     
     mapping(uint256 => Event) public events;
     mapping(uint256 => Ticket) public tickets;
+    mapping(uint256 => bool) public verifiedTickets;
     
     event EventCreated(uint256 indexed eventId, string name, address organizer);
     event TicketMinted(uint256 indexed ticketId, uint256 indexed eventId, address buyer);
+    event TicketVerified(uint256 indexed ticketId, address verifier);
     
     constructor() ERC721("EventTicket", "ETKT") {}
     
@@ -133,6 +135,21 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
      */
     function totalEvents() external view returns (uint256) {
         return _eventIds.current();
+    }
+    
+    /**
+     * @dev Verify ticket at venue
+     * @param _ticketId Ticket ID to verify
+     */
+    function verifyTicket(uint256 _ticketId) external returns (bool) {
+        require(_exists(_ticketId), "Ticket does not exist");
+        require(!tickets[_ticketId].isUsed, "Ticket already used");
+        
+        tickets[_ticketId].isUsed = true;
+        verifiedTickets[_ticketId] = true;
+        
+        emit TicketVerified(_ticketId, msg.sender);
+        return true;
     }
     
     // Required overrides for ERC721URIStorage
