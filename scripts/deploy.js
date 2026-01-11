@@ -3,29 +3,48 @@ const fs = require('fs');
 const path = require('path');
 
 async function main() {
-  console.log('Starting deployment to Base network...');
+  console.log('Starting deployment to Base network with gas optimization...');
   
   const [deployer] = await ethers.getSigners();
   console.log('Deploying contracts with account:', deployer.address);
-  console.log('Account balance:', (await deployer.getBalance()).toString());
+  console.log('Account balance:', (await deployer.provider.getBalance(deployer.address)).toString());
 
-  // Deploy EventTicket contract
-  console.log('\nDeploying EventTicket contract...');
+  // Deploy EventTicket contract with Base optimization
+  console.log('\nDeploying EventTicket contract with Base gas optimization...');
   const EventTicket = await ethers.getContractFactory('EventTicket');
-  const eventTicket = await EventTicket.deploy();
-  await eventTicket.deployed();
-  console.log('EventTicket deployed to:', eventTicket.address);
+  
+  // Estimate gas for deployment
+  const deploymentData = EventTicket.getDeployTransaction();
+  const gasEstimate = await deployer.estimateGas(deploymentData);
+  console.log('Estimated gas for EventTicket deployment:', gasEstimate.toString());
+  
+  const eventTicket = await EventTicket.deploy({
+    gasLimit: gasEstimate.mul(110).div(100) // 10% buffer for Base optimization
+  });
+  await eventTicket.waitForDeployment();
+  console.log('EventTicket deployed to:', await eventTicket.getAddress());
 
   // Deploy TicketMarketplace contract
-  console.log('\nDeploying TicketMarketplace contract...');
+  console.log('\nDeploying TicketMarketplace contract with Base optimization...');
   const TicketMarketplace = await ethers.getContractFactory('TicketMarketplace');
   const feeRecipient = process.env.FEE_RECIPIENT_ADDRESS || deployer.address;
-  const marketplace = await TicketMarketplace.deploy(
-    eventTicket.address,
+  
+  const marketplaceDeploymentData = TicketMarketplace.getDeployTransaction(
+    await eventTicket.getAddress(),
     feeRecipient
   );
-  await marketplace.deployed();
-  console.log('TicketMarketplace deployed to:', marketplace.address);
+  const marketplaceGasEstimate = await deployer.estimateGas(marketplaceDeploymentData);
+  console.log('Estimated gas for TicketMarketplace deployment:', marketplaceGasEstimate.toString());
+  
+  const marketplace = await TicketMarketplace.deploy(
+    await eventTicket.getAddress(),
+    feeRecipient,
+    {
+      gasLimit: marketplaceGasEstimate.mul(110).div(100) // 10% buffer
+    }
+  );
+  await marketplace.waitForDeployment();
+  console.log('TicketMarketplace deployed to:', await marketplace.getAddress());
 
   // Save deployment addresses
   const deploymentInfo = {
@@ -33,18 +52,23 @@ async function main() {
     chainId: network.config.chainId,
     contracts: {
       EventTicket: {
-        address: eventTicket.address,
-        transactionHash: eventTicket.deployTransaction.hash
+        address: await eventTicket.getAddress(),
+        transactionHash: eventTicket.deploymentTransaction().hash
       },
       TicketMarketplace: {
-        address: marketplace.address,
-        transactionHash: marketplace.deployTransaction.hash
+        address: await marketplace.getAddress(),
+        transactionHash: marketplace.deploymentTransaction().hash
       }
     },
     deployer: deployer.address,
     feeRecipient: feeRecipient,
     timestamp: new Date().toISOString(),
-    blockNumber: await ethers.provider.getBlockNumber()
+    blockNumber: await ethers.provider.getBlockNumber(),
+    gasOptimization: {
+      eventTicketGas: gasEstimate.toString(),
+      marketplaceGas: marketplaceGasEstimate.toString(),
+      baseNetwork: true
+    }
   };
 
   // Write deployment info to file
@@ -61,14 +85,14 @@ async function main() {
   // Verify contracts on Basescan (if not local network)
   if (network.name !== 'hardhat' && network.name !== 'localhost') {
     console.log('\nWaiting for block confirmations...');
-    await eventTicket.deployTransaction.wait(6);
-    await marketplace.deployTransaction.wait(6);
+    await eventTicket.deploymentTransaction().wait(6);
+    await marketplace.deploymentTransaction().wait(6);
 
     console.log('Verifying contracts on Basescan...');
     
     try {
       await hre.run('verify:verify', {
-        address: eventTicket.address,
+        address: await eventTicket.getAddress(),
         constructorArguments: [],
       });
       console.log('EventTicket contract verified');
@@ -78,8 +102,8 @@ async function main() {
 
     try {
       await hre.run('verify:verify', {
-        address: marketplace.address,
-        constructorArguments: [eventTicket.address, feeRecipient],
+        address: await marketplace.getAddress(),
+        constructorArguments: [await eventTicket.getAddress(), feeRecipient],
       });
       console.log('TicketMarketplace contract verified');
     } catch (error) {
@@ -87,13 +111,14 @@ async function main() {
     }
   }
 
-  console.log('\n=== Deployment Summary ===');
+  console.log('\n=== Base Network Deployment Summary ===');
   console.log('Network:', network.name);
-  console.log('EventTicket:', eventTicket.address);
-  console.log('TicketMarketplace:', marketplace.address);
+  console.log('EventTicket:', await eventTicket.getAddress());
+  console.log('TicketMarketplace:', await marketplace.getAddress());
   console.log('Deployer:', deployer.address);
   console.log('Fee Recipient:', feeRecipient);
-  console.log('==========================');
+  console.log('Gas Optimization: Enabled for Base L2');
+  console.log('=======================================');
 }
 
 main()
