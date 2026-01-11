@@ -77,8 +77,15 @@ contract EventTicket is ERC721, Ownable, ReentrancyGuard {
         
         _mint(msg.sender, tokenId);
         
-        emit TicketMinted(tokenId, _eventId, msg.sender, msg.value);
-        emit PaymentReceived(msg.sender, msg.value, _eventId);
+        // Refund excess payment
+        uint256 excess = msg.value - eventData.ticketPrice;
+        if (excess > 0) {
+            payable(msg.sender).transfer(excess);
+            emit RefundIssued(msg.sender, excess);
+        }
+        
+        emit TicketMinted(tokenId, _eventId, msg.sender, eventData.ticketPrice);
+        emit PaymentReceived(msg.sender, eventData.ticketPrice, _eventId);
         
         return tokenId;
     }
