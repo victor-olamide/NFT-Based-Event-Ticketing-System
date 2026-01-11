@@ -79,10 +79,11 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         uint256 _maxSupply,
         TransferRestriction _transferRestriction
     ) external returns (uint256) {
-        require(bytes(_name).length > 0, "Name required");
+        require(bytes(_name).length > 0 && bytes(_name).length <= 100, "Invalid name length");
         require(_date > block.timestamp, "Invalid date");
-        require(bytes(_venue).length > 0, "Venue required");
-        require(_maxSupply > 0, "Max supply required");
+        require(bytes(_venue).length > 0 && bytes(_venue).length <= 200, "Invalid venue length");
+        require(_maxSupply > 0 && _maxSupply <= 100000, "Invalid max supply");
+        require(_ticketPrice > 0, "Price must be positive");
         
         _eventIds.increment();
         uint256 eventId = _eventIds.current();
