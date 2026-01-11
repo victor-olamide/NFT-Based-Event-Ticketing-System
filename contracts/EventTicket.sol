@@ -18,6 +18,12 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     Counters.Counter private _tokenIds;
     Counters.Counter private _eventIds;
     
+    enum TransferRestriction {
+        NONE,
+        ORGANIZER_ONLY,
+        NO_TRANSFER
+    }
+    
     struct Event {
         uint256 eventId;
         string name;
