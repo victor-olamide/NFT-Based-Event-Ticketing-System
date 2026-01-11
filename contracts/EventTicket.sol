@@ -266,6 +266,48 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     }
     
     /**
+     * @dev Get multiple events in batch for gas optimization
+     * @param _eventIds Array of event IDs
+     */
+    function getEventsBatch(uint256[] calldata _eventIds) external view returns (Event[] memory) {
+        Event[] memory eventList = new Event[](_eventIds.length);
+        for (uint256 i = 0; i < _eventIds.length; i++) {
+            eventList[i] = events[_eventIds[i]];
+        }
+        return eventList;
+    }
+    
+    /**
+     * @dev Get events by organizer for gas-optimized queries
+     * @param _organizer Organizer address
+     * @param _limit Maximum number of events to return
+     */
+    function getEventsByOrganizer(address _organizer, uint256 _limit) external view returns (Event[] memory) {
+        uint256 totalEvents = _eventIds.current();
+        uint256 count = 0;
+        
+        // First pass: count matching events
+        for (uint256 i = 1; i <= totalEvents && count < _limit; i++) {
+            if (events[i].organizer == _organizer) {
+                count++;
+            }
+        }
+        
+        Event[] memory organizerEvents = new Event[](count);
+        uint256 index = 0;
+        
+        // Second pass: populate array
+        for (uint256 i = 1; i <= totalEvents && index < count; i++) {
+            if (events[i].organizer == _organizer) {
+                organizerEvents[index] = events[i];
+                index++;
+            }
+        }
+        
+        return organizerEvents;
+    }
+    
+    /**
      * @dev Get ticket details
      * @param _ticketId Ticket ID
      */
