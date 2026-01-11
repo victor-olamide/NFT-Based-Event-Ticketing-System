@@ -55,6 +55,8 @@ contract EventTicket is ERC721, Ownable, ReentrancyGuard {
         require(eventData.isActive, "Event not active");
         require(eventData.ticketsSold < eventData.maxSupply, "Sold out");
         require(msg.value >= eventData.ticketPrice, "Insufficient payment");
+        require(ticketCounts[msg.sender] < MAX_TICKETS_PER_ADDRESS, "Ticket limit exceeded");
+        require(eventTicketCounts[_eventId][msg.sender] < 5, "Event ticket limit exceeded");
         
         _tokenIds.increment();
         uint256 tokenId = _tokenIds.current();
