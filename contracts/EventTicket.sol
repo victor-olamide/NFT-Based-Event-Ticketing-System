@@ -46,4 +46,38 @@ contract EventTicket is ERC721, Ownable, ReentrancyGuard {
     event RefundIssued(address indexed buyer, uint256 amount);
     
     constructor() ERC721("EventTicket", "ETKT") {}
+    
+    function mintTicket(
+        uint256 _eventId,
+        uint256 _seatNumber
+    ) external payable nonReentrant returns (uint256) {
+        Event storage eventData = events[_eventId];
+        require(eventData.isActive, "Event not active");
+        require(eventData.ticketsSold < eventData.maxSupply, "Sold out");
+        require(msg.value >= eventData.ticketPrice, "Insufficient payment");
+        
+        _tokenIds.increment();
+        uint256 tokenId = _tokenIds.current();
+        
+        tickets[tokenId] = Ticket({
+            ticketId: tokenId,
+            eventId: _eventId,
+            originalBuyer: msg.sender,
+            isUsed: false,
+            seatNumber: _seatNumber,
+            purchasePrice: msg.value,
+            purchaseTime: block.timestamp
+        });
+        
+        eventData.ticketsSold++;
+        ticketCounts[msg.sender]++;
+        eventTicketCounts[_eventId][msg.sender]++;
+        
+        _mint(msg.sender, tokenId);
+        
+        emit TicketMinted(tokenId, _eventId, msg.sender, msg.value);
+        emit PaymentReceived(msg.sender, msg.value, _eventId);
+        
+        return tokenId;
+    }
 }
