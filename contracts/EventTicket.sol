@@ -141,4 +141,16 @@ contract EventTicket is ERC721, Ownable, ReentrancyGuard {
         emit PaymentReceived(msg.sender, totalCost, _eventId);
         return tokenIds;
     }
+    
+    function withdrawEventFunds(uint256 _eventId) external nonReentrant {
+        Event storage eventData = events[_eventId];
+        require(eventData.organizer == msg.sender, "Not organizer");
+        
+        uint256 amount = eventData.ticketsSold * eventData.ticketPrice;
+        require(amount > 0, "No funds to withdraw");
+        
+        eventData.ticketsSold = 0; // Reset to prevent re-withdrawal
+        payable(msg.sender).transfer(amount);
+    }
+    }
 }
