@@ -55,7 +55,13 @@ contract EventTicket is ERC721, Ownable, ReentrancyGuard, Pausable {
         Event storage eventData = events[_eventId];
         require(eventData.isActive, "Event not active");
         require(eventData.ticketsSold < eventData.maxSupply, "Sold out");
-        require(msg.value >= eventData.ticketPrice, "Insufficient payment");
+        
+        if (eventData.ticketPrice > 0) {
+            require(msg.value >= eventData.ticketPrice, "Insufficient payment");
+        } else {
+            require(msg.value == 0, "No payment required for free event");
+        }
+        
         require(ticketCounts[msg.sender] < MAX_TICKETS_PER_ADDRESS, "Ticket limit exceeded");
         require(eventTicketCounts[_eventId][msg.sender] < 5, "Event ticket limit exceeded");
         
@@ -102,7 +108,11 @@ contract EventTicket is ERC721, Ownable, ReentrancyGuard, Pausable {
         require(eventData.ticketsSold + _seatNumbers.length <= eventData.maxSupply, "Insufficient capacity");
         
         uint256 totalCost = eventData.ticketPrice * _seatNumbers.length;
-        require(msg.value >= totalCost, "Insufficient payment");
+        if (eventData.ticketPrice > 0) {
+            require(msg.value >= totalCost, "Insufficient payment");
+        } else {
+            require(msg.value == 0, "No payment required for free event");
+        }
         require(ticketCounts[msg.sender] + _seatNumbers.length <= MAX_TICKETS_PER_ADDRESS, "Ticket limit exceeded");
         require(eventTicketCounts[_eventId][msg.sender] + _seatNumbers.length <= 5, "Event ticket limit exceeded");
         
