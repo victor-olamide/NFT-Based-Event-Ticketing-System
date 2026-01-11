@@ -116,7 +116,7 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     ) external payable nonReentrant returns (uint256) {
         Event storage eventData = events[_eventId];
         require(eventData.isActive, "Event not active");
-        require(eventData.ticketsSold < eventData.totalTickets, "Sold out");
+        require(eventData.ticketsSold < eventData.maxSupply, "Sold out");
         require(msg.value >= eventData.ticketPrice, "Insufficient payment");
         
         _tokenIds.increment();
