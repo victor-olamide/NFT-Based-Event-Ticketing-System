@@ -258,6 +258,26 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     }
     
     /**
+     * @dev Reactivate an event (only organizer)
+     * @param _eventId Event ID to reactivate
+     */
+    function reactivateEvent(uint256 _eventId) external {
+        require(events[_eventId].organizer == msg.sender, "Not organizer");
+        require(events[_eventId].date > block.timestamp, "Event date passed");
+        events[_eventId].isActive = true;
+    }
+    
+    /**
+     * @dev Update event transfer restriction (only organizer)
+     * @param _eventId Event ID
+     * @param _transferRestriction New transfer restriction
+     */
+    function updateTransferRestriction(uint256 _eventId, TransferRestriction _transferRestriction) external {
+        require(events[_eventId].organizer == msg.sender, "Not organizer");
+        events[_eventId].transferRestriction = _transferRestriction;
+    }
+    
+    /**
      * @dev Get event details
      * @param _eventId Event ID
      */
