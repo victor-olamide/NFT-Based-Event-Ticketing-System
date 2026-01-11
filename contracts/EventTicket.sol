@@ -50,7 +50,13 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     mapping(uint256 => Ticket) public tickets;
     mapping(uint256 => bool) public verifiedTickets;
     
-    event EventCreated(uint256 indexed eventId, string name, address organizer);
+    event EventCreated(
+        uint256 indexed eventId, 
+        string name, 
+        address indexed organizer,
+        uint256 maxSupply,
+        TransferRestriction transferRestriction
+    );
     event TicketMinted(uint256 indexed ticketId, uint256 indexed eventId, address buyer);
     event TicketVerified(uint256 indexed ticketId, address verifier);
     
