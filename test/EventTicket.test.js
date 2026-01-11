@@ -133,4 +133,51 @@ describe("EventTicket", function () {
       ).to.be.revertedWith("Ticket already used");
     });
   });
+
+  describe("Transfer Restrictions", function () {
+    it("Should allow transfers with NONE restriction", async function () {
+      const eventDate = Math.floor(Date.now() / 1000) + 86400;
+      await eventTicket.connect(organizer).createEvent(
+        "Test Event",
+        eventDate,
+        "Test Venue",
+        ethers.parseEther("0.1"),
+        100,
+        0 // TransferRestriction.NONE
+      );
+      
+      await eventTicket.connect(buyer).mintTicket(
+        1,
+        1,
+        { value: ethers.parseEther("0.1") }
+      );
+      
+      // Should allow transfer
+      await eventTicket.connect(buyer).transferFrom(buyer.address, organizer.address, 1);
+      expect(await eventTicket.ownerOf(1)).to.equal(organizer.address);
+    });
+
+    it("Should restrict transfers with NO_TRANSFER restriction", async function () {
+      const eventDate = Math.floor(Date.now() / 1000) + 86400;
+      await eventTicket.connect(organizer).createEvent(
+        "Test Event",
+        eventDate,
+        "Test Venue",
+        ethers.parseEther("0.1"),
+        100,
+        2 // TransferRestriction.NO_TRANSFER
+      );
+      
+      await eventTicket.connect(buyer).mintTicket(
+        1,
+        1,
+        { value: ethers.parseEther("0.1") }
+      );
+      
+      // Should fail transfer
+      await expect(
+        eventTicket.connect(buyer).transferFrom(buyer.address, organizer.address, 1)
+      ).to.be.revertedWith("Transfer not allowed");
+    });
+  });
 });
