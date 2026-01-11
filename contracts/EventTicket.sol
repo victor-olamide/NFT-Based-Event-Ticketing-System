@@ -89,4 +89,56 @@ contract EventTicket is ERC721, Ownable, ReentrancyGuard {
         
         return tokenId;
     }
+    
+    function mintTicketsBatch(
+        uint256 _eventId,
+        uint256[] calldata _seatNumbers
+    ) external payable nonReentrant returns (uint256[] memory) {
+        require(_seatNumbers.length > 0 && _seatNumbers.length <= 5, "Invalid batch size");
+        
+        Event storage eventData = events[_eventId];
+        require(eventData.isActive, "Event not active");
+        require(eventData.ticketsSold + _seatNumbers.length <= eventData.maxSupply, "Insufficient capacity");
+        
+        uint256 totalCost = eventData.ticketPrice * _seatNumbers.length;
+        require(msg.value >= totalCost, "Insufficient payment");
+        require(ticketCounts[msg.sender] + _seatNumbers.length <= MAX_TICKETS_PER_ADDRESS, "Ticket limit exceeded");
+        require(eventTicketCounts[_eventId][msg.sender] + _seatNumbers.length <= 5, "Event ticket limit exceeded");
+        
+        uint256[] memory tokenIds = new uint256[](_seatNumbers.length);
+        
+        for (uint256 i = 0; i < _seatNumbers.length; i++) {
+            _tokenIds.increment();
+            uint256 tokenId = _tokenIds.current();
+            
+            tickets[tokenId] = Ticket({
+                ticketId: tokenId,
+                eventId: _eventId,
+                originalBuyer: msg.sender,
+                isUsed: false,
+                seatNumber: _seatNumbers[i],
+                purchasePrice: eventData.ticketPrice,
+                purchaseTime: block.timestamp
+            });
+            
+            _mint(msg.sender, tokenId);
+            tokenIds[i] = tokenId;
+            
+            emit TicketMinted(tokenId, _eventId, msg.sender, eventData.ticketPrice);
+        }
+        
+        eventData.ticketsSold += _seatNumbers.length;
+        ticketCounts[msg.sender] += _seatNumbers.length;
+        eventTicketCounts[_eventId][msg.sender] += _seatNumbers.length;
+        
+        // Refund excess payment
+        uint256 excess = msg.value - totalCost;
+        if (excess > 0) {
+            payable(msg.sender).transfer(excess);
+            emit RefundIssued(msg.sender, excess);
+        }
+        
+        emit PaymentReceived(msg.sender, totalCost, _eventId);
+        return tokenIds;
+    }
 }
