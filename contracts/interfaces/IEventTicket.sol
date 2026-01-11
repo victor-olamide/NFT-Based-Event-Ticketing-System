@@ -7,16 +7,24 @@ pragma solidity ^0.8.19;
  */
 interface IEventTicket {
     
+    enum TransferRestriction {
+        NONE,
+        ORGANIZER_ONLY,
+        NO_TRANSFER
+    }
+    
     struct Event {
         uint256 eventId;
         string name;
         uint256 date;
         string venue;
-        uint256 totalTickets;
+        uint256 maxSupply;
         uint256 ticketsSold;
         uint256 ticketPrice;
         address organizer;
         bool isActive;
+        TransferRestriction transferRestriction;
+        uint256 maxResalePrice;
     }
     
     struct Ticket {
@@ -27,7 +35,13 @@ interface IEventTicket {
         uint256 seatNumber;
     }
     
-    event EventCreated(uint256 indexed eventId, string name, address organizer);
+    event EventCreated(
+        uint256 indexed eventId, 
+        string name, 
+        address indexed organizer,
+        uint256 maxSupply,
+        TransferRestriction transferRestriction
+    );
     event TicketMinted(uint256 indexed ticketId, uint256 indexed eventId, address buyer);
     event TicketVerified(uint256 indexed ticketId, address verifier);
     
@@ -35,8 +49,9 @@ interface IEventTicket {
         string calldata _name,
         uint256 _date,
         string calldata _venue,
-        uint256 _totalTickets,
-        uint256 _ticketPrice
+        uint256 _ticketPrice,
+        uint256 _maxSupply,
+        TransferRestriction _transferRestriction
     ) external returns (uint256);
     
     function mintTicket(
