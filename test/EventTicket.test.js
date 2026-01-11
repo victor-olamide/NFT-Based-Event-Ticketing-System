@@ -33,18 +33,21 @@ describe("EventTicket", function () {
         "Test Event",
         eventDate,
         "Test Venue",
+        ethers.parseEther("0.1"),
         100,
-        ethers.parseEther("0.1")
+        0 // TransferRestriction.NONE
       );
 
       await expect(tx)
         .to.emit(eventTicket, "EventCreated")
-        .withArgs(1, "Test Event", organizer.address);
+        .withArgs(1, "Test Event", organizer.address, 100, 0);
 
       const event = await eventTicket.getEvent(1);
       expect(event.name).to.equal("Test Event");
       expect(event.organizer).to.equal(organizer.address);
       expect(event.isActive).to.be.true;
+      expect(event.maxSupply).to.equal(100);
+      expect(event.transferRestriction).to.equal(0);
     });
   });
 
@@ -55,8 +58,9 @@ describe("EventTicket", function () {
         "Test Event",
         eventDate,
         "Test Venue",
+        ethers.parseEther("0.1"),
         100,
-        ethers.parseEther("0.1")
+        0 // TransferRestriction.NONE
       );
     });
 
@@ -97,8 +101,9 @@ describe("EventTicket", function () {
         "Test Event",
         eventDate,
         "Test Venue",
+        ethers.parseEther("0.1"),
         100,
-        ethers.parseEther("0.1")
+        0 // TransferRestriction.NONE
       );
       
       await eventTicket.connect(buyer).mintTicket(
