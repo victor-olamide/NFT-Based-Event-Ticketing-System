@@ -152,5 +152,30 @@ contract EventTicket is ERC721, Ownable, ReentrancyGuard {
         eventData.ticketsSold = 0; // Reset to prevent re-withdrawal
         payable(msg.sender).transfer(amount);
     }
+    
+    function createEvent(
+        string calldata _name,
+        uint256 _date,
+        string calldata _venue,
+        uint256 _ticketPrice,
+        uint256 _maxSupply
+    ) external returns (uint256) {
+        _eventIds.increment();
+        uint256 eventId = _eventIds.current();
+        
+        events[eventId] = Event({
+            eventId: eventId,
+            name: _name,
+            date: _date,
+            venue: _venue,
+            maxSupply: _maxSupply,
+            ticketsSold: 0,
+            ticketPrice: _ticketPrice,
+            organizer: msg.sender,
+            isActive: true
+        });
+        
+        return eventId;
+    }
     }
 }
