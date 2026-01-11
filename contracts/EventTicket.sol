@@ -194,6 +194,50 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     }
     
     /**
+     * @dev Create multiple events in batch for gas optimization
+     * @param _names Array of event names
+     * @param _dates Array of event dates
+     * @param _venues Array of event venues
+     * @param _ticketPrices Array of ticket prices
+     * @param _maxSupplies Array of max supplies
+     * @param _transferRestrictions Array of transfer restrictions
+     */
+    function createEventsBatch(
+        string[] calldata _names,
+        uint256[] calldata _dates,
+        string[] calldata _venues,
+        uint256[] calldata _ticketPrices,
+        uint256[] calldata _maxSupplies,
+        TransferRestriction[] calldata _transferRestrictions
+    ) external returns (uint256[] memory) {
+        uint256 length = _names.length;
+        require(length > 0 && length <= 10, "Invalid batch size");
+        require(
+            _dates.length == length &&
+            _venues.length == length &&
+            _ticketPrices.length == length &&
+            _maxSupplies.length == length &&
+            _transferRestrictions.length == length,
+            "Array length mismatch"
+        );
+        
+        uint256[] memory eventIds = new uint256[](length);
+        
+        for (uint256 i = 0; i < length; i++) {
+            eventIds[i] = createEvent(
+                _names[i],
+                _dates[i],
+                _venues[i],
+                _ticketPrices[i],
+                _maxSupplies[i],
+                _transferRestrictions[i]
+            );
+        }
+        
+        return eventIds;
+    }
+    
+    /**
      * @dev Update max resale price for an event (organizer only)
      * @param _eventId Event ID
      * @param _maxResalePrice New maximum resale price
