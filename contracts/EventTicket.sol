@@ -63,20 +63,27 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     constructor() ERC721("EventTicket", "ETKT") {}
     
     /**
-     * @dev Create a new event
+     * @dev Create a new event with Base network gas optimization
      * @param _name Event name
      * @param _date Event date (timestamp)
      * @param _venue Event venue
-     * @param _totalTickets Total number of tickets
      * @param _ticketPrice Price per ticket in wei
+     * @param _maxSupply Maximum number of tickets
+     * @param _transferRestriction Transfer restriction level
      */
     function createEvent(
         string calldata _name,
         uint256 _date,
         string calldata _venue,
-        uint256 _totalTickets,
-        uint256 _ticketPrice
+        uint256 _ticketPrice,
+        uint256 _maxSupply,
+        TransferRestriction _transferRestriction
     ) external returns (uint256) {
+        require(bytes(_name).length > 0, "Name required");
+        require(_date > block.timestamp, "Invalid date");
+        require(bytes(_venue).length > 0, "Venue required");
+        require(_maxSupply > 0, "Max supply required");
+        
         _eventIds.increment();
         uint256 eventId = _eventIds.current();
         
@@ -85,14 +92,16 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
             name: _name,
             date: _date,
             venue: _venue,
-            totalTickets: _totalTickets,
+            maxSupply: _maxSupply,
             ticketsSold: 0,
             ticketPrice: _ticketPrice,
             organizer: msg.sender,
-            isActive: true
+            isActive: true,
+            transferRestriction: _transferRestriction,
+            maxResalePrice: _ticketPrice * 2
         });
         
-        emit EventCreated(eventId, _name, msg.sender);
+        emit EventCreated(eventId, _name, msg.sender, _maxSupply, _transferRestriction);
         return eventId;
     }
     
