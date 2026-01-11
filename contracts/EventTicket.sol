@@ -36,8 +36,14 @@ contract EventTicket is ERC721, Ownable, ReentrancyGuard {
     
     mapping(uint256 => Event) public events;
     mapping(uint256 => Ticket) public tickets;
+    mapping(address => uint256) public ticketCounts;
+    mapping(uint256 => mapping(address => uint256)) public eventTicketCounts;
+    
+    uint256 public constant MAX_TICKETS_PER_ADDRESS = 10;
     
     event TicketMinted(uint256 indexed ticketId, uint256 indexed eventId, address indexed buyer, uint256 price);
+    event PaymentReceived(address indexed buyer, uint256 amount, uint256 eventId);
+    event RefundIssued(address indexed buyer, uint256 amount);
     
     constructor() ERC721("EventTicket", "ETKT") {}
 }
