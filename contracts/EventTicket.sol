@@ -194,6 +194,17 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     }
     
     /**
+     * @dev Update max resale price for an event (organizer only)
+     * @param _eventId Event ID
+     * @param _maxResalePrice New maximum resale price
+     */
+    function updateMaxResalePrice(uint256 _eventId, uint256 _maxResalePrice) external {
+        require(events[_eventId].organizer == msg.sender, "Not organizer");
+        require(_maxResalePrice >= events[_eventId].ticketPrice, "Below original price");
+        events[_eventId].maxResalePrice = _maxResalePrice;
+    }
+    
+    /**
      * @dev Deactivate an event (only organizer)
      * @param _eventId Event ID to deactivate
      */
