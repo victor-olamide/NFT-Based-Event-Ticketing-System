@@ -177,5 +177,25 @@ contract EventTicket is ERC721, Ownable, ReentrancyGuard {
         
         return eventId;
     }
+    
+    function getTicket(uint256 _ticketId) external view returns (Ticket memory) {
+        return tickets[_ticketId];
+    }
+    
+    function getEvent(uint256 _eventId) external view returns (Event memory) {
+        return events[_eventId];
+    }
+    
+    function getTicketCount(address _buyer) external view returns (uint256) {
+        return ticketCounts[_buyer];
+    }
+    
+    function getEventTicketCount(uint256 _eventId, address _buyer) external view returns (uint256) {
+        return eventTicketCounts[_eventId][_buyer];
+    }
+    
+    function totalSupply() external view returns (uint256) {
+        return _tokenIds.current();
+    }
     }
 }
