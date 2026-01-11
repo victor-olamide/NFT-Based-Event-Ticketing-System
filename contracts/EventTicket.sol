@@ -138,6 +138,23 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     }
     
     /**
+     * @dev Validate transfer based on event restrictions
+     * @param tokenId Token ID to validate
+     * @param from Current owner
+     * @param to New owner
+     */
+    function _validateTransfer(uint256 tokenId, address from, address to) internal view {
+        Ticket memory ticket = tickets[tokenId];
+        Event memory eventData = events[ticket.eventId];
+        
+        if (eventData.transferRestriction == TransferRestriction.NO_TRANSFER) {
+            require(from == address(0), "Transfer not allowed");
+        } else if (eventData.transferRestriction == TransferRestriction.ORGANIZER_ONLY) {
+            require(to == eventData.organizer || from == address(0), "Only organizer transfers");
+        }
+    }
+    
+    /**
      * @dev Set token URI for metadata
      * @param tokenId Token ID
      * @param _tokenURI Metadata URI
