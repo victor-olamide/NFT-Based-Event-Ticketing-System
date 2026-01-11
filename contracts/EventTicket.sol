@@ -4,9 +4,10 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract EventTicket is ERC721, Ownable, ReentrancyGuard {
+contract EventTicket is ERC721, Ownable, ReentrancyGuard, Pausable {
     using Counters for Counters.Counter;
     
     Counters.Counter private _tokenIds;
@@ -50,7 +51,7 @@ contract EventTicket is ERC721, Ownable, ReentrancyGuard {
     function mintTicket(
         uint256 _eventId,
         uint256 _seatNumber
-    ) external payable nonReentrant returns (uint256) {
+    ) external payable nonReentrant whenNotPaused returns (uint256) {
         Event storage eventData = events[_eventId];
         require(eventData.isActive, "Event not active");
         require(eventData.ticketsSold < eventData.maxSupply, "Sold out");
@@ -93,7 +94,7 @@ contract EventTicket is ERC721, Ownable, ReentrancyGuard {
     function mintTicketsBatch(
         uint256 _eventId,
         uint256[] calldata _seatNumbers
-    ) external payable nonReentrant returns (uint256[] memory) {
+    ) external payable nonReentrant whenNotPaused returns (uint256[] memory) {
         require(_seatNumbers.length > 0 && _seatNumbers.length <= 5, "Invalid batch size");
         
         Event storage eventData = events[_eventId];
@@ -196,6 +197,14 @@ contract EventTicket is ERC721, Ownable, ReentrancyGuard {
     
     function totalSupply() external view returns (uint256) {
         return _tokenIds.current();
+    }
+    
+    function pause() external onlyOwner {
+        _pause();
+    }
+    
+    function unpause() external onlyOwner {
+        _unpause();
     }
     }
 }
