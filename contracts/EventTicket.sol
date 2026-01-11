@@ -64,6 +64,7 @@ contract EventTicket is ERC721, Ownable, ReentrancyGuard, Pausable {
         
         require(ticketCounts[msg.sender] < MAX_TICKETS_PER_ADDRESS, "Ticket limit exceeded");
         require(eventTicketCounts[_eventId][msg.sender] < 5, "Event ticket limit exceeded");
+        require(_seatNumber > 0 && _seatNumber <= eventData.maxSupply, "Invalid seat number");
         
         _tokenIds.increment();
         uint256 tokenId = _tokenIds.current();
@@ -115,6 +116,11 @@ contract EventTicket is ERC721, Ownable, ReentrancyGuard, Pausable {
         }
         require(ticketCounts[msg.sender] + _seatNumbers.length <= MAX_TICKETS_PER_ADDRESS, "Ticket limit exceeded");
         require(eventTicketCounts[_eventId][msg.sender] + _seatNumbers.length <= 5, "Event ticket limit exceeded");
+        
+        // Validate seat numbers
+        for (uint256 i = 0; i < _seatNumbers.length; i++) {
+            require(_seatNumbers[i] > 0 && _seatNumbers[i] <= eventData.maxSupply, "Invalid seat number");
+        }
         
         uint256[] memory tokenIds = new uint256[](_seatNumbers.length);
         
