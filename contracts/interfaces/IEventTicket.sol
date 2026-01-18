@@ -1,7 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+/**
+ * @title IEventTicket
+ * @dev Interface for EventTicket contract
+ */
 interface IEventTicket {
+    
+    enum TransferRestriction {
+        NONE,
+        ORGANIZER_ONLY,
+        NO_TRANSFER
+    }
+    
     struct Event {
         uint256 eventId;
         string name;
@@ -12,6 +23,8 @@ interface IEventTicket {
         uint256 ticketPrice;
         address organizer;
         bool isActive;
+        TransferRestriction transferRestriction;
+        uint256 maxResalePrice;
     }
     
     struct Ticket {
@@ -20,20 +33,39 @@ interface IEventTicket {
         address originalBuyer;
         bool isUsed;
         uint256 seatNumber;
-        uint256 purchasePrice;
-        uint256 purchaseTime;
     }
     
-    event TicketMinted(uint256 indexed ticketId, uint256 indexed eventId, address indexed buyer, uint256 price);
-    event PaymentReceived(address indexed buyer, uint256 amount, uint256 eventId);
-    event RefundIssued(address indexed buyer, uint256 amount);
+    event EventCreated(
+        uint256 indexed eventId, 
+        string name, 
+        address indexed organizer,
+        uint256 maxSupply,
+        TransferRestriction transferRestriction
+    );
+    event TicketMinted(uint256 indexed ticketId, uint256 indexed eventId, address buyer);
+    event TicketVerified(uint256 indexed ticketId, address verifier);
     
-    function mintTicket(uint256 _eventId, uint256 _seatNumber) external payable returns (uint256);
-    function mintTicketsBatch(uint256 _eventId, uint256[] calldata _seatNumbers) external payable returns (uint256[] memory);
-    function createEvent(string calldata _name, uint256 _date, string calldata _venue, uint256 _ticketPrice, uint256 _maxSupply) external returns (uint256);
-    function withdrawEventFunds(uint256 _eventId) external;
-    function getTicket(uint256 _ticketId) external view returns (Ticket memory);
+    function createEvent(
+        string calldata _name,
+        uint256 _date,
+        string calldata _venue,
+        uint256 _ticketPrice,
+        uint256 _maxSupply,
+        TransferRestriction _transferRestriction
+    ) external returns (uint256);
+    
+    function mintTicket(
+        uint256 _eventId,
+        uint256 _seatNumber
+    ) external payable returns (uint256);
+    
+    function verifyTicket(uint256 _ticketId) external returns (bool);
+    
     function getEvent(uint256 _eventId) external view returns (Event memory);
-    function getTicketCount(address _buyer) external view returns (uint256);
-    function getEventTicketCount(uint256 _eventId, address _buyer) external view returns (uint256);
+    
+    function getTicket(uint256 _ticketId) external view returns (Ticket memory);
+    
+    function totalSupply() external view returns (uint256);
+    
+    function totalEvents() external view returns (uint256);
 }
