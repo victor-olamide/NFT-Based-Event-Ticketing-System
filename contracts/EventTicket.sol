@@ -23,6 +23,13 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         ORGANIZER_ONLY,
         NO_TRANSFER
     }
+
+    enum TicketStatus {
+        ACTIVE,
+        USED,
+        CANCELLED,
+        REFUNDED
+    }
     
     struct Event {
         uint256 eventId;
