@@ -23,16 +23,41 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         ORGANIZER_ONLY,
         NO_TRANSFER
     }
+
+    enum TicketStatus {
+        ACTIVE,
+        USED,
+        CANCELLED,
+        REFUNDED
+    }
+
+    enum EventStatus {
+        UPCOMING,
+        ONGOING,
+        COMPLETED,
+        CANCELLED
+    }
     
+    struct PricingTier {
+        string name;
+        uint256 price;
+        uint256 maxSupply;
+        uint256 ticketsSold;
+    }
+
     struct Event {
         uint256 eventId;
         string name;
+        string description;
+        string category;
+        string metadataURI;
         uint256 date;
         string venue;
         uint256 maxSupply;
         uint256 ticketsSold;
         uint256 ticketPrice;
         address organizer;
+        EventStatus status;
         bool isActive;
         TransferRestriction transferRestriction;
         uint256 maxResalePrice;
@@ -42,11 +67,20 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         uint256 ticketId;
         uint256 eventId;
         address originalBuyer;
-        bool isUsed;
+        TicketStatus status;
         uint256 seatNumber;
+        uint256 pricePaid;
     }
     
     mapping(uint256 => Event) public events;
+    mapping(uint256 => PricingTier[]) public eventPricingTiers;
+    mapping(uint256 => string[]) public eventPricingTierNames;
+    mapping(uint256 => mapping(uint256 => uint256)) public eventPricingTierTicketsSold;
+    mapping(uint256 => mapping(uint256 => uint256)) public eventPricingTierPrices;
+    mapping(uint256 => mapping(uint256 => uint256)) public eventPricingTierMaxSupplies;
+    mapping(uint256 => mapping(address => uint256[])) public eventUserTickets;
+    mapping(uint256 => mapping(address => bool)) public eventAuthorizedStaff;
+    mapping(uint256 => uint256) public ticketToPricingTier;
     mapping(uint256 => Ticket) public tickets;
     mapping(uint256 => bool) public verifiedTickets;
     
