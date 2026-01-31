@@ -51,6 +51,7 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         address originalBuyer;
         TicketStatus status;
         uint256 seatNumber;
+        uint256 pricePaid;
     }
     
     mapping(uint256 => Event) public events;
