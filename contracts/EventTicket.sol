@@ -75,6 +75,7 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     mapping(uint256 => Event) public events;
     mapping(uint256 => PricingTier[]) public eventPricingTiers;
     mapping(uint256 => mapping(address => uint256[])) public eventUserTickets;
+    mapping(uint256 => mapping(address => bool)) public eventAuthorizedStaff;
     mapping(uint256 => Ticket) public tickets;
     mapping(uint256 => bool) public verifiedTickets;
     
