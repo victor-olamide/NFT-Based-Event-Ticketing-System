@@ -31,6 +31,13 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         REFUNDED
     }
     
+    struct PricingTier {
+        string name;
+        uint256 price;
+        uint256 maxSupply;
+        uint256 ticketsSold;
+    }
+
     struct Event {
         uint256 eventId;
         string name;
