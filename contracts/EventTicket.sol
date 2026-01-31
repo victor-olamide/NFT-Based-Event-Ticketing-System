@@ -49,6 +49,8 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         uint256 eventId;
         string name;
         string description;
+        string category;
+        string metadataURI;
         uint256 date;
         string venue;
         uint256 maxSupply;
