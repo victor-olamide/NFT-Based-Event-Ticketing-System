@@ -49,7 +49,7 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         uint256 ticketId;
         uint256 eventId;
         address originalBuyer;
-        bool isUsed;
+        TicketStatus status;
         uint256 seatNumber;
     }
     
