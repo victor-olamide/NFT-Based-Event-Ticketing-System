@@ -30,6 +30,13 @@ contract EventTicket is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         CANCELLED,
         REFUNDED
     }
+
+    enum EventStatus {
+        UPCOMING,
+        ONGOING,
+        COMPLETED,
+        CANCELLED
+    }
     
     struct PricingTier {
         string name;
